@@ -1,0 +1,83 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+env/
+*.env
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs and debug files
+*.log
+*.out
+*.err
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Python egg files
+*.egg
+*.egg-info/
+.eggs/
+
+# Cache files
+*.cache
+*.mypy_cache/
+*.pytest_cache/
+.cache/
+
+# Compiled C extensions
+*.so
+
+# Data files
+/data/raw/
+/data/processed/
+/data/models/
+/data/reports/
+
+# Configuration files
+*.yaml
+*.json
+
+# Test outputs
+/tests/test_data/
+/tests/__pycache__/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build and distribution directories
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+
+# Generated documentation
+docs/_build/
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# Docker files
+*.dockerfile
+
+# Streamlit cache
+.streamlit/
+
+# Additional configurations (optional)
+/configs/*.yaml
