@@ -82,9 +82,10 @@ class TimeDomainFeatures:
             return 0, 0, 0
         diff_signal = np.diff(self.signal)
         diff_variance = np.var(diff_signal)
-        activity = variance
-        mobility = np.sqrt(diff_variance / variance)
-        complexity = np.sqrt(np.var(np.diff(diff_signal)) / diff_variance) / mobility
+        activity = float(variance)
+        mobility = float(np.sqrt(diff_variance / variance))
+        complexity = float(np.sqrt(np.var(np.diff(diff_signal)) / diff_variance) / mobility)
+        
         return activity, mobility, complexity
 
     def crest_factor(self):
