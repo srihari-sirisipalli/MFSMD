@@ -1,0 +1,2 @@
+Scaler,Clustering Method,WCSS (Compactness),Max Distance from Center,Avg Distance from Center,Distance Threshold
+MinMaxScaler,KMeans,457.7983447636701,5.876690883852901,3.2764686890197865,6.2043377527548795

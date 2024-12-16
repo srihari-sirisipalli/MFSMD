@@ -1,0 +1,13 @@
+Scaler,Clustering Method,WCSS (Compactness)
+MinMaxScaler,KMeans,441.783051516802
+MinMaxScaler,AgglomerativeClustering,441.783051516802
+MinMaxScaler,DBSCAN,441.783051516802
+MinMaxScaler,GaussianMixture,441.783051516802
+StandardScaler,KMeans,8953.180280965425
+StandardScaler,AgglomerativeClustering,8953.180280965425
+StandardScaler,DBSCAN,8953.180280965425
+StandardScaler,GaussianMixture,8953.180280965425
+RobustScaler,KMeans,3833765.2824781365
+RobustScaler,AgglomerativeClustering,3833765.2824781365
+RobustScaler,DBSCAN,3833765.2824781365
+RobustScaler,GaussianMixture,3833765.2824781365
