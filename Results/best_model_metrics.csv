@@ -1,0 +1,2 @@
+Silhouette Score,Calinski-Harabasz Score,Davies-Bouldin Score,Scaling Method,Clustering Method,Explained Variance
+0.9970357793923956,77853.68799788969,0.007207647535879731,robust,kmeans,"[0.9959699278300915, 0.0009608963102667908]"

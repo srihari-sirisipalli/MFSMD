@@ -1,56 +1,51 @@
-# import os
-# import winreg as reg
+import pandas as pd
 
-# # Path to remove
-# path_to_remove = r"C:\Users\siris\Projects\Machine Fault Detection and Monitoring System\Machine Fault Detection and Monitoring System"
+def reshape_csv(input_file, output_file):
+    # Read the CSV file
+    df = pd.read_csv(input_file)
+    
+    # Calculate number of groups (each group has 8 rows)
+    n_groups = len(df) // 8
+    
+    reshaped_data = []
+    
+    # Process each group of 8 rows
+    for i in range(n_groups):
+        group = df.iloc[i*8:(i+1)*8]
+        row_dict = {}
+        
+        # Process each row in the group
+        for j, row in enumerate(group.itertuples(), 1):
+            prefix = f"{j}_"
+            
+            # Get all columns except the index and filename/channel
+            metrics = row._asdict()
+            for col in df.columns:
+                if col not in ['Index', 'file_name', 'channel']:
+                    row_dict[prefix + col] = metrics[col]
+        
+        reshaped_data.append(row_dict)
+    
+    # Create final dataframe
+    result_df = pd.DataFrame(reshaped_data)
+    
+    # Sort columns to ensure consistent order
+    result_df = result_df.reindex(sorted(result_df.columns), axis=1)
+    
+    # Save to new CSV file
+    result_df.to_csv(output_file, index=False)
+    
+    return result_df
 
-# # Remove from the current environment
-# pythonpath = os.environ.get("PYTHONPATH", "")
-# paths = pythonpath.split(os.pathsep)
-# if path_to_remove in paths:
-#     paths.remove(path_to_remove)
-#     new_pythonpath = os.pathsep.join(paths)
-#     os.environ["PYTHONPATH"] = new_pythonpath
-#     print(f"Removed '{path_to_remove}' from current session PYTHONPATH.")
-# else:
-#     print(f"'{path_to_remove}' not found in the current session PYTHONPATH.")
+# Example usage:
+input_file = r"C:\Users\siris\Projects\Machine Fault Detection and Monitoring System\MFDMS\unbalance_time_domain_features.csv"
+output_file = 'unbalance_time_domain_features_reshaped.csv'  # Replace with desired output filename
 
-# # Update permanently in Windows Environment Variables
-# key = reg.OpenKey(reg.HKEY_CURRENT_USER, r"Environment", 0, reg.KEY_SET_VALUE)
-# try:
-#     reg.SetValueEx(key, "PYTHONPATH", 0, reg.REG_SZ, new_pythonpath)
-#     print(f"Removed '{path_to_remove}' from permanent PYTHONPATH.")
-# finally:
-#     reg.CloseKey()
+df = reshape_csv(input_file, output_file)
 
-import os
-
-# Define the path to your virtual environment
-venv_path = r"C:\Users\siris\Projects\Machine Fault Detection and Monitoring System\MFDMS\venv"
-
-# Path to pyvenv.cfg
-pyvenv_cfg = os.path.join(venv_path, "pyvenv.cfg")
-
-# Read and modify pyvenv.cfg if it contains the path
-if os.path.exists(pyvenv_cfg):
-    with open(pyvenv_cfg, "r") as file:
-        lines = file.readlines()
-    with open(pyvenv_cfg, "w") as file:
-        for line in lines:
-            # Remove or modify any line referencing the unwanted path
-            if "Machine Fault Detection and Monitoring System" not in line:
-                file.write(line)
-
-print(f"Updated {pyvenv_cfg} to remove unwanted paths.")
-
-
-from src.feature_extraction.time_domain import TimeDomainFeatures
-import inspect
-
-# Print the source of the loaded class
-print(inspect.getsource(TimeDomainFeatures))
-import sys
-
-print("Python Module Search Paths:")
-for path in sys.path:
-    print(path)
+# Print summary of the transformation
+print(f"Transformation complete!")
+print(f"Original shape: {len(df)*8} rows x {len(df.columns)//8} columns")
+print(f"New shape: {len(df)} rows x {len(df.columns)} columns")
+print("\nFirst few columns:")
+print(df)

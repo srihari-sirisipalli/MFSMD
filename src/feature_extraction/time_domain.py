@@ -4,9 +4,8 @@ from scipy.signal import find_peaks
 from skimage.morphology import dilation, erosion, opening, closing
 from src.utils.logger import setup_logger
 
-logger = setup_logger("TimeDomainFeatures",log_dir='logs/time_domain', log_file="time_domain_features.log")
+logger = setup_logger("TimeDomainFeatures", log_dir='logs/time_domain', log_file="time_domain_features.log")
 logger.info("Logger initialized for TimeDomainFeatures")
-
 
 class TimeDomainFeatures:
     def __init__(self, signal):
@@ -85,8 +84,7 @@ class TimeDomainFeatures:
         activity = float(variance)
         mobility = float(np.sqrt(diff_variance / variance))
         complexity = float(np.sqrt(np.var(np.diff(diff_signal)) / diff_variance) / mobility)
-        
-        return activity, mobility, complexity
+        return [activity, mobility, complexity]
 
     def crest_factor(self):
         logger.debug("Calculating crest factor.")
@@ -95,29 +93,6 @@ class TimeDomainFeatures:
             logger.warning("RMS value is zero; crest factor is undefined.")
             return np.inf
         return self.peak_to_peak() / rms
-
-    def histogram_bounds(self, bins=10):
-        logger.debug("Calculating histogram bounds.")
-        hist, bin_edges = np.histogram(self.signal, bins=bins)
-        lower = bin_edges[0]
-        upper = bin_edges[-1]
-        diff = upper - lower
-        return lower, upper, diff
-
-    def upper_lower_histogram(self, threshold):
-        """
-        Compute counts of values above and below a threshold.
-
-        Parameters:
-            threshold (float): The threshold value.
-
-        Returns:
-            tuple: (upper_count, lower_count)
-        """
-        logger.debug(f"Calculating upper and lower histogram for threshold {threshold}.")
-        upper_count = np.sum(self.signal > threshold)
-        lower_count = np.sum(self.signal <= threshold)
-        return upper_count, lower_count
 
     def entropy_estimation(self):
         """
@@ -131,25 +106,40 @@ class TimeDomainFeatures:
         probability_distribution = probability_distribution[probability_distribution > 0]
         return -np.sum(probability_distribution * np.log2(probability_distribution))
 
-    def morphological_operations(self):
+    def all_features(self):
         """
-        Perform mathematical morphology operations: dilation, erosion, opening, and closing.
+        Compute and return all features as a dictionary.
 
         Returns:
-            tuple: (dilated, eroded, opened, closed)
+            dict: A dictionary containing all computed features.
         """
-        logger.debug("Performing mathematical morphology operations.")
-        if len(self.signal.shape) != 1:
-            logger.error("Signal must be 1D for morphological operations.")
-            raise ValueError("Signal must be 1D for morphological operations.")
-        signal_reshaped = self.signal.reshape(-1, 1)
-        dilated = dilation(signal_reshaped).flatten()
-        eroded = erosion(signal_reshaped).flatten()
-        opened = opening(signal_reshaped).flatten()
-        closed = closing(signal_reshaped).flatten()
-        logger.info("Performed dilation, erosion, opening, and closing operations.")
-        return dilated, eroded, opened, closed
-
+        logger.debug("Calculating all features.")
+        try:
+            hjorth = self.hjorth_parameters()
+            features = {
+                "1st Hjorth parameter (activity)": hjorth[0],
+                "2nd Hjorth parameter (mobility)": hjorth[1],
+                "3rd Hjorth parameter (complexity)": hjorth[2],
+                "Absolute Average Value": self.absolute_average_value(),
+                "Crest Factor": self.crest_factor(),
+                "Impulse Factor (IF)": self.peak_to_peak() / np.mean(np.abs(self.signal)),
+                "Kurtosis Factor": self.kurtosis_factor(),
+                "Maximum": self.maximum(),
+                "Mean": self.mean(),
+                "Minimum": self.minimum(),
+                "Peak-to-Peak": self.peak_to_peak(),
+                "Root Mean Square (RMS)": self.root_mean_square(),
+                "Shape Factor (waveform factor)": self.root_mean_square() / self.absolute_average_value(),
+                "Skewness": self.skewness(),
+                "Standard Deviation": self.standard_deviation(),
+                "Variance": self.variance(),
+                "Zero Crossings": self.zero_crossings(),
+                "Entropy Estimation": self.entropy_estimation(),
+            }
+            return features
+        except Exception as e:
+            logger.error(f"Error calculating all features: {e}")
+            raise
 
 if __name__ == "__main__":
     # Example signal: Noisy sine wave
@@ -157,43 +147,10 @@ if __name__ == "__main__":
     features = TimeDomainFeatures(signal)
 
     try:
-        # Statistical Features
-        print("\nStatistical Features:")
-        print(f"Mean: {features.mean()}")
-        print(f"Maximum: {features.maximum()}")
-        print(f"Minimum: {features.minimum()}")
-        print(f"Variance: {features.variance()}")
-        print(f"Standard Deviation: {features.standard_deviation()}")
-        print(f"Skewness: {features.skewness()}")
-        print(f"Kurtosis: {features.kurtosis_factor()}")
-        print(f"Zero Crossings: {features.zero_crossings()}")
-
-        # Signal Shape Descriptors
-        print("\nSignal Shape Descriptors:")
-        print(f"Peak-to-Peak: {features.peak_to_peak()}")
-        print(f"Root Mean Square (RMS): {features.root_mean_square()}")
-        print(f"Absolute Average Value: {features.absolute_average_value()}")
-        print(f"Crest Factor: {features.crest_factor()}")
-
-        # Advanced Features
-        print("\nAdvanced Features:")
-        print(f"Hjorth Parameters: {features.hjorth_parameters()}")
-        print(f"Entropy Estimation: {features.entropy_estimation()}")
-
-        # Histogram Features
-        print("\nHistogram Features:")
-        lower, upper, diff = features.histogram_bounds()
-        print(f"Histogram Bounds: Lower={lower}, Upper={upper}, Difference={diff}")
-        upper_count, lower_count = features.upper_lower_histogram(threshold=0)
-        print(f"Values Above Threshold: {upper_count}, Below Threshold: {lower_count}")
-
-        # Morphological Operations
-        print("\nMorphological Operations (First 5 Values):")
-        dilated, eroded, opened, closed = features.morphological_operations()
-        print(f"Dilation: {dilated[:5]}")
-        print(f"Erosion: {eroded[:5]}")
-        print(f"Opening: {opened[:5]}")
-        print(f"Closing: {closed[:5]}")
+        all_features = features.all_features()
+        print("\nAll Features:")
+        for feature, value in all_features.items():
+            print(f"{feature}: {value}")
 
     except Exception as e:
         logger.error(f"Error during feature computation: {e}")
