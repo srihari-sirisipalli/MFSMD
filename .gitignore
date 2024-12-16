@@ -34,11 +34,7 @@ Thumbs.db
 # Compiled C extensions
 *.so
 
-# Data files
-/data/raw/
-/data/processed/
-/data/models/
-/data/reports/
+
 
 # Configuration files
 *.yaml
